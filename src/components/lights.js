@@ -1,14 +1,9 @@
 import * as THREE from "three";
-import { GUI } from "lil-gui";
-
-import vertexShader from "../shaders/vertex.glsl";
-import fragmentShader from "../shaders/fragment.glsl";
-import { setRenderer, setScene } from "./setUtils";
-
-const gui = new GUI();
+import vertexShader from "../shaders/lightsVertex.glsl";
+import fragmentShader from "../shaders/lightsFrag.glsl";
 
 const parameters = {
-  count: 100,
+  count: 20,
   radius: 5,
   randomness: 20,
   space: 5,
@@ -19,16 +14,16 @@ const parameters = {
 
 let material = null;
 let geometry = null;
-let mesh = null;
+export let lightsMesh = null;
 
 let renderer = null;
 let scene = null;
 
-const Lights = (importedRenderer, importedScene) => {
-  if (mesh !== null) {
+const GenerateLights = (importedRenderer, importedScene) => {
+  if (lightsMesh !== null) {
     geometry.dispose();
     material.dispose();
-    scene.remove(mesh);
+    scene.remove(lightsMesh);
   }
   if (renderer === null) renderer = importedRenderer;
   if (scene === null) scene = importedScene;
@@ -87,9 +82,9 @@ const Lights = (importedRenderer, importedScene) => {
 
   // material = new THREE.PointsMaterial();
 
-  mesh = new THREE.Points(geometry, material);
-  mesh.position.y = 4;
-  scene.add(mesh);
+  lightsMesh = new THREE.Points(geometry, material);
+  lightsMesh.position.y = 4;
+  scene.add(lightsMesh);
 };
 
-export { Lights, parameters };
+export { GenerateLights, parameters };

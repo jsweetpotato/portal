@@ -2,8 +2,8 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GUI } from "lil-gui";
 
-import { Lights, parameters } from "./components/generateLights";
-import Reflector from "./components/reflector";
+import { GenerateLights, lightsMesh, parameters } from "./components/lights";
+import GenerateReflector, { reflectorMesh } from "./components/reflector";
 
 THREE.ColorManagement.enabled = false;
 
@@ -37,31 +37,37 @@ camera.position.z = 30;
 /* ----------------------- */
 /* ------- Objects ------- */
 
-Reflector(camera, scene);
-Lights(renderer, scene);
+GenerateLights(renderer, scene);
+GenerateReflector(scene);
 
 /* ------------------------ */
 /* -------- GUI -------- */
 
-export const lights = gui.addFolder("lights");
+const lights = gui.addFolder("lights");
 
-lights.add(parameters, "count").min(50).max(1000).step(20).onFinishChange(Lights);
-lights.add(parameters, "radius").min(10).max(100).step(1).onFinishChange(Lights);
-lights.add(parameters, "randomness").min(2).max(20).step(1).onFinishChange(Lights);
-lights.add(parameters, "space").min(2).max(10).step(1).onFinishChange(Lights);
-lights.add(parameters, "colorRandomPower").min(0.1).max(1).step(0.01).onFinishChange(Lights);
-lights.addColor(parameters, "color").onFinishChange(Lights);
+lights.add(parameters, "count").min(5).max(100).step(5).onFinishChange(GenerateLights);
+lights.add(parameters, "radius").min(10).max(100).step(1).onFinishChange(GenerateLights);
+lights.add(parameters, "randomness").min(2).max(20).step(1).onFinishChange(GenerateLights);
+lights.add(parameters, "space").min(2).max(10).step(1).onFinishChange(GenerateLights);
+lights.add(parameters, "colorRandomPower").min(0.1).max(1).step(0.01).onFinishChange(GenerateLights);
+lights.addColor(parameters, "color").onFinishChange(GenerateLights);
 
-lights.add(parameters, "pointScale").min(5).max(20).step(1).onFinishChange(Lights);
+lights.add(parameters, "pointScale").min(5).max(20).step(1).onFinishChange(GenerateLights);
 lights
-  .add(scene.children[1].material.uniforms.uSize, "value")
+  .add(scene.children[0].material.uniforms.uSize, "value")
   .name("uSize")
   .min(5)
   .max(20)
   .step(1)
   .onFinishChange((value) => {
-    scene.children[1].material.uniforms.uSize.value = value * renderer.getPixelRatio();
+    lightsMesh.material.uniforms.uSize.value = value * renderer.getPixelRatio();
   });
+
+const reflectorGUI = gui.addFolder("reflector");
+const reflectorUniforms = scene.children[1].material.uniforms;
+reflectorGUI.addColor(reflectorUniforms.color, "value").name("color");
+reflectorGUI.add(reflectorUniforms.uWaveStrength, "value").min(0).max(0.2).step(0.001).name("waveStrength");
+reflectorGUI.add(reflectorUniforms.uWaveSpeed, "value").min(0).max(0.2).step(0.0001).name("waveSpeed");
 
 /* ------------------------ */
 /* -------- Events -------- */
@@ -90,7 +96,7 @@ const clock = new THREE.Clock();
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
-  scene.children[1].material.uniforms.uTime.value = elapsedTime;
+  lightsMesh.material.uniforms.uTime.value = reflectorMesh.material.uniforms.uTime.value = elapsedTime;
   // Update controls
   controls.update();
 
