@@ -9,7 +9,7 @@ const parameters = {
   space: 5,
   pointScale: 2,
   color: "#008cff",
-  colorRandomPower: 0.2,
+  colorRandomness: 0.2,
 };
 
 let material = null;
@@ -57,9 +57,9 @@ const GenerateLights = (importedRenderer, importedScene) => {
     aRandoms[i3 + 1] = (Math.random() - 0.5) * randomness;
     aRandoms[i3 + 2] = (Math.random() - 0.5) * randomness;
 
-    colors[i3] = Math.random() * parameters.colorRandomPower + defaultColor.r;
-    colors[i3 + 1] = Math.random() * parameters.colorRandomPower + defaultColor.g;
-    colors[i3 + 2] = Math.random() * parameters.colorRandomPower + defaultColor.b;
+    colors[i3] = Math.random() * parameters.colorRandomness + defaultColor.r;
+    colors[i3 + 1] = Math.random() * parameters.colorRandomness + defaultColor.g;
+    colors[i3 + 2] = Math.random() * parameters.colorRandomness + defaultColor.b;
   }
 
   geometry.setAttribute("position", new THREE.BufferAttribute(position, 3));

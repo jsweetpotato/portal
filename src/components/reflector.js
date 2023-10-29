@@ -4,8 +4,7 @@ import { loadingManager, textureLoader } from "../loader";
 
 import vertexShader from "../shaders/reflectorVertex.glsl";
 import fragmentShader from "../shaders/reflectorFrag.glsl";
-
-export let reflectorMesh = null;
+let reflectorMesh = null;
 
 const GenerateReflector = (scene) => {
   const circle = new THREE.CircleGeometry(20, 8);
@@ -31,10 +30,12 @@ const GenerateReflector = (scene) => {
   reflectorMesh.rotation.x = -Math.PI * 0.5;
   scene.add(reflectorMesh);
 
+  // Test mesh
   const box = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshStandardMaterial());
   box.position.y = 1;
   scene.add(box);
 
+  // Test light
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
   const directionalLight = new THREE.DirectionalLight(0xffffff, 6);
   directionalLight.position.set(5, 20, 8);
@@ -47,4 +48,4 @@ dudvMap.generateMipmaps = false;
 
 loadingManager.onLoad = () => (reflectorMesh.material.uniforms.tDudv.value = dudvMap);
 
-export default GenerateReflector;
+export { GenerateReflector, reflectorMesh };

@@ -28,7 +28,7 @@ void main() {
 
   vec2 distortedUv = texture2D( tDudv, vec2( vUv.x + uTime * uWaveSpeed, vUv.y ) ).rg * uWaveStrength;
   distortedUv = vUv.xy + vec2( distortedUv.x, distortedUv.y + uTime * uWaveSpeed );
-  vec2 distortion = ( texture2D( tDudv, distortedUv ).rg * 4.0 - 2.5 ) * uWaveStrength;
+  vec2 distortion = ( texture2D( tDudv, distortedUv ).rg * 2.0 - 1. ) * uWaveStrength;
 
   // new uv coords
 

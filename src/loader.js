@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 export const loadingManager = new THREE.LoadingManager();
 loadingManager.onError = (url) => {
@@ -6,3 +7,5 @@ loadingManager.onError = (url) => {
 };
 
 export const textureLoader = new THREE.TextureLoader(loadingManager);
+
+export const gltfLoader = new GLTFLoader(loadingManager);

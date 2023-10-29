@@ -3,7 +3,8 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GUI } from "lil-gui";
 
 import { GenerateLights, lightsMesh, parameters } from "./components/lights";
-import GenerateReflector, { reflectorMesh } from "./components/reflector";
+import { GenerateReflector, reflectorMesh } from "./components/reflector";
+import Portal from "./components/portal";
 
 THREE.ColorManagement.enabled = false;
 
@@ -39,6 +40,7 @@ camera.position.z = 30;
 
 GenerateLights(renderer, scene);
 GenerateReflector(scene);
+Portal(scene);
 
 /* ------------------------ */
 /* -------- GUI -------- */
@@ -49,12 +51,12 @@ lights.add(parameters, "count").min(5).max(100).step(5).onFinishChange(GenerateL
 lights.add(parameters, "radius").min(10).max(100).step(1).onFinishChange(GenerateLights);
 lights.add(parameters, "randomness").min(2).max(20).step(1).onFinishChange(GenerateLights);
 lights.add(parameters, "space").min(2).max(10).step(1).onFinishChange(GenerateLights);
-lights.add(parameters, "colorRandomPower").min(0.1).max(1).step(0.01).onFinishChange(GenerateLights);
+lights.add(parameters, "colorRandomness").min(0.1).max(1).step(0.01).onFinishChange(GenerateLights);
 lights.addColor(parameters, "color").onFinishChange(GenerateLights);
 
-lights.add(parameters, "pointScale").min(5).max(20).step(1).onFinishChange(GenerateLights);
+lights.add(parameters, "pointScale").min(5).max(20).step(1).name("uScale").onFinishChange(GenerateLights);
 lights
-  .add(scene.children[0].material.uniforms.uSize, "value")
+  .add(lightsMesh.material.uniforms.uSize, "value")
   .name("uSize")
   .min(5)
   .max(20)
@@ -90,8 +92,6 @@ window.addEventListener("resize", handleResize);
 
 /* ----------------------- */
 /* ------- Animate ------- */
-console.log(scene.children);
-
 const clock = new THREE.Clock();
 
 const tick = () => {
