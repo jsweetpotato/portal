@@ -23,16 +23,19 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 1000);
 const controls = new OrbitControls(camera, canvas);
 const renderer = new THREE.WebGLRenderer({ canvas: canvas });
+renderer.shadowMap.enabled = true;
 
 /* --------------------- */
 /* --- Util Settings --- */
 renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1;
 
 controls.enableDamping = true;
 
-camera.position.y = 10;
+camera.position.y = 8;
 camera.position.z = 30;
 
 /* ----------------------- */
@@ -41,6 +44,18 @@ camera.position.z = 30;
 GenerateLights(renderer, scene);
 GenerateReflector(scene);
 Portal(scene);
+
+// Test mesh
+// const box = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshStandardMaterial());
+// box.position.y = 1;
+// scene.add(box);
+
+// Test light
+const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+const directionLight = new THREE.PointLight(0xff6dff, 5, 10, 0);
+// const lightHelper = new THREE.SpotLightHelper(directionLight);
+directionLight.position.set(0, 4, -2);
+scene.add(ambientLight, directionLight);
 
 /* ------------------------ */
 /* -------- GUI -------- */
@@ -96,9 +111,12 @@ const clock = new THREE.Clock();
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
-  lightsMesh.material.uniforms.uTime.value = reflectorMesh.material.uniforms.uTime.value = elapsedTime;
+  lightsMesh.material.uniforms.uTime.value = elapsedTime;
+  reflectorMesh.material.uniforms.uTime.value = elapsedTime;
   // Update controls
   controls.update();
+  // box.position.y = Math.sin(elapsedTime) * 3 + 4;
+  // box.position.x = Math.cos(elapsedTime) * 3;
 
   // Render
   renderer.render(scene, camera);

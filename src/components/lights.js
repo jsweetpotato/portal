@@ -3,11 +3,11 @@ import vertexShader from "../shaders/lightsVertex.glsl";
 import fragmentShader from "../shaders/lightsFrag.glsl";
 
 const parameters = {
-  count: 20,
+  count: 30,
   radius: 5,
   randomness: 20,
   space: 5,
-  pointScale: 2,
+  pointScale: 10,
   color: "#008cff",
   colorRandomness: 0.2,
 };
@@ -50,7 +50,7 @@ const GenerateLights = (importedRenderer, importedScene) => {
     const x = (Math.random() - 0.5) * radius + randomX;
 
     position[i3] = x < 0 ? x - parameters.space : x + parameters.space;
-    position[i3 + 1] = (Math.random() - 0.5) * radius + randomY;
+    position[i3 + 1] = (Math.random() - 0.5) * radius + randomY + 3;
     position[i3 + 2] = (Math.random() - 0.5) * radius + randomZ;
 
     aRandoms[i3] = (Math.random() - 0.5) * randomness;
@@ -74,7 +74,7 @@ const GenerateLights = (importedRenderer, importedScene) => {
     vertexShader: vertexShader,
     fragmentShader: fragmentShader,
     uniforms: {
-      uSize: { value: 10 * renderer.getPixelRatio() },
+      uSize: { value: 5 * renderer.getPixelRatio() },
       uTime: { value: 0 },
       uScale: { value: parameters.pointScale },
     },
