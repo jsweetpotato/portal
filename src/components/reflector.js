@@ -5,10 +5,12 @@ import { loadingManager, textureLoader } from "../loader";
 import vertexShader from "../shaders/reflectorVertex.glsl";
 import fragmentShader from "../shaders/reflectorFrag.glsl";
 let reflectorMesh = null;
+let reflectorMat = null;
 
 const GenerateReflector = (scene) => {
   const circle = new THREE.CircleGeometry(50, 8);
-  reflectorMesh = new Reflector(circle, {
+
+  reflectorMat = {
     color: 0xdfffff,
     textureWidth: 1024,
     textureHeight: 1024,
@@ -25,7 +27,8 @@ const GenerateReflector = (scene) => {
       vertexShader: vertexShader,
       fragmentShader: fragmentShader,
     },
-  });
+  };
+  reflectorMesh = new Reflector(circle, reflectorMat);
   reflectorMesh.position.y = -0.5;
   reflectorMesh.rotation.x = -Math.PI * 0.5;
   scene.add(reflectorMesh);
@@ -35,6 +38,6 @@ const dudvMap = textureLoader.load("/waterdudv.jpg");
 dudvMap.wrapS = dudvMap.wrapT = THREE.RepeatWrapping;
 dudvMap.generateMipmaps = false;
 
-loadingManager.onLoad = () => (reflectorMesh.material.uniforms.tDudv.value = dudvMap);
+// loadingManager.onLoad = () => (reflectorMat.uniforms.tDudv.value = dudvMap);
 
-export { GenerateReflector, reflectorMesh };
+export { GenerateReflector, reflectorMat };

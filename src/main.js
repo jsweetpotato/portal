@@ -2,9 +2,11 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GUI } from "lil-gui";
 
-import { GenerateLights, lightsMesh, parameters } from "./components/lights";
-import { GenerateReflector, reflectorMesh } from "./components/reflector";
+import { GenerateLights, lightsMat, parameters } from "./components/lights";
+// import { GenerateReflector, reflectorMat} from "./components/reflector";
 import Portal from "./components/portal";
+import { GenerateWater, waterMat } from "./components/water";
+import { rgbeLoader } from "./loader";
 
 THREE.ColorManagement.enabled = false;
 
@@ -20,7 +22,12 @@ const sizes = {
 let time = { value: 0 };
 const gui = new GUI();
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 1000);
+const camera = new THREE.PerspectiveCamera(
+  50,
+  window.innerWidth / window.innerHeight,
+  0.01,
+  1000
+);
 const controls = new OrbitControls(camera, canvas);
 const renderer = new THREE.WebGLRenderer({ canvas: canvas });
 renderer.shadowMap.enabled = true;
@@ -34,15 +41,18 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1;
 
 controls.enableDamping = true;
+controls.target.set(0, 3, 0);
+console.dir(controls);
 
 camera.position.y = 8;
-camera.position.z = 30;
+camera.position.z = 20;
 
 /* ----------------------- */
 /* ------- Objects ------- */
 
 GenerateLights(renderer, scene);
-GenerateReflector(scene);
+// GenerateReflector(scene);
+GenerateWater(scene);
 Portal(scene);
 
 // Test mesh
@@ -51,40 +61,85 @@ Portal(scene);
 // scene.add(box);
 
 // Test light
-const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-const directionLight = new THREE.PointLight(0xff6dff, 5, 10, 0);
+// const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+// const directionLight = new THREE.PointLight(0xff6dff, 5, 10, 0);
 // const lightHelper = new THREE.SpotLightHelper(directionLight);
-directionLight.position.set(0, 4, -2);
-scene.add(ambientLight, directionLight);
+// directionLight.position.set(0, 4, -2);
+// scene.add(ambientLight);
+// scene.add(directionLight);
+
+const envmap2 = rgbeLoader.load("envmap2.hdr", () => {
+  envmap2.mapping = THREE.EquirectangularReflectionMapping;
+  scene.background = envmap2;
+});
+scene.backgroundBlurriness = 0.3;
+scene.backgroundIntensity = 3;
 
 /* ------------------------ */
 /* -------- GUI -------- */
 
 const lights = gui.addFolder("lights");
+const lightsColor = lights.addFolder("lightsColor");
+const lightsUniforms = lights.addFolder("lightsUniforms");
 
-lights.add(parameters, "count").min(5).max(100).step(5).onFinishChange(GenerateLights);
-lights.add(parameters, "radius").min(10).max(100).step(1).onFinishChange(GenerateLights);
-lights.add(parameters, "randomness").min(2).max(20).step(1).onFinishChange(GenerateLights);
-lights.add(parameters, "space").min(2).max(10).step(1).onFinishChange(GenerateLights);
-lights.add(parameters, "colorRandomness").min(0.1).max(1).step(0.01).onFinishChange(GenerateLights);
-lights.addColor(parameters, "color").onFinishChange(GenerateLights);
+lights.add(parameters, "count", 5, 100, 5).onFinishChange(GenerateLights);
+lights.add(parameters, "radius", 10, 100, 1).onFinishChange(GenerateLights);
+lights.add(parameters, "randomness", 2, 20, 1).onFinishChange(GenerateLights);
+lights.add(parameters, "space", 2, 10, 1).onFinishChange(GenerateLights);
 
-lights.add(parameters, "pointScale").min(5).max(20).step(1).name("uScale").onFinishChange(GenerateLights);
-lights
-  .add(lightsMesh.material.uniforms.uSize, "value")
+lightsColor
+  .add(parameters, "colorRandomness", 0.1, 1, 0.01)
+  .onFinishChange(GenerateLights);
+lightsColor.addColor(parameters, "color").onFinishChange(GenerateLights);
+
+lightsUniforms
+  .add(parameters, "pointScale", 5, 20, 1)
+  .name("uScale")
+  .onFinishChange(GenerateLights);
+lightsUniforms
+  .add(lightsMat.uniforms.uSize, "value", 5, 20, 1)
   .name("uSize")
-  .min(5)
-  .max(20)
-  .step(1)
   .onFinishChange((value) => {
-    lightsMesh.material.uniforms.uSize.value = value * renderer.getPixelRatio();
+    lightsMat.uniforms.uSize.value = value * renderer.getPixelRatio();
   });
 
-const reflectorGUI = gui.addFolder("reflector");
-const reflectorUniforms = scene.children[1].material.uniforms;
-reflectorGUI.addColor(reflectorUniforms.color, "value").name("color");
-reflectorGUI.add(reflectorUniforms.uWaveStrength, "value").min(0).max(0.2).step(0.001).name("waveStrength");
-reflectorGUI.add(reflectorUniforms.uWaveSpeed, "value").min(0).max(0.2).step(0.0001).name("waveSpeed");
+lights
+  .add(parameters, "positionY", -2, 10, 0.01)
+  .onFinishChange(GenerateLights);
+
+// const reflectorGUI = gui.addFolder("reflector");
+// const reflectorUniforms = scene.children[1].material.uniforms;
+// reflectorGUI.addColor(reflectorUniforms.color, "value").name("color");
+// reflectorGUI
+//   .add(reflectorUniforms.uWaveStrength, "value")
+//   .min(0)
+//   .max(0.2)
+//   .step(0.001)
+//   .name("waveStrength");
+// reflectorGUI
+//   .add(reflectorUniforms.uWaveSpeed, "value")
+//   .min(0)
+//   .max(0.2)
+//   .step(0.0001)
+//   .name("waveSpeed");
+
+const waterGUI = gui.addFolder("water");
+const waterUniforms = waterMat.uniforms;
+waterGUI
+  .add(waterUniforms.uBigWaveElevation, "value", 0, 2, 0.01)
+  .name("uBigWaveElevation");
+waterGUI
+  .add(waterUniforms.uBigWaveFreqeuncy.value, "x", 0, 1, 0.01)
+  .name("uBigWaveFreqeuncyX");
+waterGUI
+  .add(waterUniforms.uBigWaveFreqeuncy.value, "y", 0, 1, 0.01)
+  .name("uBigWaveFreqeuncyY");
+waterGUI
+  .add(waterUniforms.uBigWaveSpeed.value, "x", 0, 1, 0.01)
+  .name("uBigWaveSpeedX");
+waterGUI
+  .add(waterUniforms.uBigWaveSpeed.value, "y", 0, 1, 0.01)
+  .name("uBigWaveSpeedY");
 
 /* ------------------------ */
 /* -------- Events -------- */
@@ -111,8 +166,9 @@ const clock = new THREE.Clock();
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
-  lightsMesh.material.uniforms.uTime.value = elapsedTime;
-  reflectorMesh.material.uniforms.uTime.value = elapsedTime;
+  lightsMat.uniforms.uTime.value = elapsedTime;
+  waterMat.uniforms.uTime.value = elapsedTime;
+  // reflectorMat.uniforms.uTime.value = elapsedTime;
   // Update controls
   controls.update();
   // box.position.y = Math.sin(elapsedTime) * 3 + 4;

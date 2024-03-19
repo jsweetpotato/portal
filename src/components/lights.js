@@ -9,10 +9,11 @@ const parameters = {
   space: 5,
   pointScale: 10,
   color: "#008cff",
-  colorRandomness: 0.2,
+  colorRandomness: 0.9,
+  positionY: 2,
 };
 
-let material = null;
+let lightsMat = null;
 let geometry = null;
 export let lightsMesh = null;
 
@@ -22,7 +23,7 @@ let scene = null;
 const GenerateLights = (importedRenderer, importedScene) => {
   if (lightsMesh !== null) {
     geometry.dispose();
-    material.dispose();
+    lightsMat.dispose();
     scene.remove(lightsMesh);
   }
   if (renderer === null) renderer = importedRenderer;
@@ -58,15 +59,17 @@ const GenerateLights = (importedRenderer, importedScene) => {
     aRandoms[i3 + 2] = (Math.random() - 0.5) * randomness;
 
     colors[i3] = Math.random() * parameters.colorRandomness + defaultColor.r;
-    colors[i3 + 1] = Math.random() * parameters.colorRandomness + defaultColor.g;
-    colors[i3 + 2] = Math.random() * parameters.colorRandomness + defaultColor.b;
+    colors[i3 + 1] =
+      Math.random() * parameters.colorRandomness + defaultColor.g;
+    colors[i3 + 2] =
+      Math.random() * parameters.colorRandomness + defaultColor.b;
   }
 
   geometry.setAttribute("position", new THREE.BufferAttribute(position, 3));
   geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
   geometry.setAttribute("aRandom", new THREE.BufferAttribute(aRandoms, 3));
 
-  material = new THREE.ShaderMaterial({
+  lightsMat = new THREE.ShaderMaterial({
     depthWrite: false,
     blending: THREE.AdditiveBlending,
     vertexColors: true,
@@ -82,9 +85,9 @@ const GenerateLights = (importedRenderer, importedScene) => {
 
   // material = new THREE.PointsMaterial();
 
-  lightsMesh = new THREE.Points(geometry, material);
-  lightsMesh.position.y = 4;
+  lightsMesh = new THREE.Points(geometry, lightsMat);
+  lightsMesh.position.y = parameters.positionY;
   scene.add(lightsMesh);
 };
 
-export { GenerateLights, parameters };
+export { GenerateLights, parameters, lightsMat };
