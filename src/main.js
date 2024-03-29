@@ -4,7 +4,7 @@ import { GUI } from "lil-gui";
 
 import { GenerateLights, lightsMat, parameters } from "./components/lights";
 // import { GenerateReflector, reflectorMat} from "./components/reflector";
-import Portal from "./components/portal";
+import { Portal, screenMat } from "./components/portal";
 import { GenerateWater, waterMat } from "./components/water";
 import { rgbeLoader } from "./loader";
 
@@ -22,12 +22,7 @@ const sizes = {
 let time = { value: 0 };
 const gui = new GUI();
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(
-  50,
-  window.innerWidth / window.innerHeight,
-  0.01,
-  1000
-);
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 1000);
 const controls = new OrbitControls(camera, canvas);
 const renderer = new THREE.WebGLRenderer({ canvas: canvas });
 renderer.shadowMap.enabled = true;
@@ -78,34 +73,40 @@ scene.backgroundIntensity = 3;
 /* ------------------------ */
 /* -------- GUI -------- */
 
-const lights = gui.addFolder("lights");
-const lightsColor = lights.addFolder("lightsColor");
-const lightsUniforms = lights.addFolder("lightsUniforms");
+// const lights = gui.addFolder("lights");
+// const lightsColor = lights.addFolder("lightsColor");
+// const lightsUniforms = lights.addFolder("lightsUniforms");
+const screenUniforms = gui.addFolder("screenUniforms");
 
-lights.add(parameters, "count", 5, 100, 5).onFinishChange(GenerateLights);
-lights.add(parameters, "radius", 10, 100, 1).onFinishChange(GenerateLights);
-lights.add(parameters, "randomness", 2, 20, 1).onFinishChange(GenerateLights);
-lights.add(parameters, "space", 2, 10, 1).onFinishChange(GenerateLights);
+// lights.add(parameters, "count", 5, 100, 5).onFinishChange(GenerateLights);
+// lights.add(parameters, "radius", 10, 100, 1).onFinishChange(GenerateLights);
+// lights.add(parameters, "randomness", 2, 20, 1).onFinishChange(GenerateLights);
+// lights.add(parameters, "space", 2, 10, 1).onFinishChange(GenerateLights);
 
-lightsColor
-  .add(parameters, "colorRandomness", 0.1, 1, 0.01)
-  .onFinishChange(GenerateLights);
-lightsColor.addColor(parameters, "color").onFinishChange(GenerateLights);
+// lightsColor
+//   .add(parameters, "colorRandomness", 0.1, 1, 0.01)
+//   .onFinishChange(GenerateLights);
+// lightsColor.addColor(parameters, "color").onFinishChange(GenerateLights);
 
-lightsUniforms
-  .add(parameters, "pointScale", 5, 20, 1)
-  .name("uScale")
-  .onFinishChange(GenerateLights);
-lightsUniforms
-  .add(lightsMat.uniforms.uSize, "value", 5, 20, 1)
-  .name("uSize")
-  .onFinishChange((value) => {
-    lightsMat.uniforms.uSize.value = value * renderer.getPixelRatio();
-  });
+// lightsUniforms
+//   .add(parameters, "pointScale", 5, 20, 1)
+//   .name("uScale")
+//   .onFinishChange(GenerateLights);
+// lightsUniforms
+//   .add(lightsMat.uniforms.uSize, "value", 5, 20, 1)
+//   .name("uSize")
+//   .onFinishChange((value) => {
+//     lightsMat.uniforms.uSize.value = value * renderer.getPixelRatio();
+//   });
 
-lights
-  .add(parameters, "positionY", -2, 10, 0.01)
-  .onFinishChange(GenerateLights);
+// lights
+//   .add(parameters, "positionY", -2, 10, 0.01)
+//   .onFinishChange(GenerateLights);
+
+screenUniforms.addColor(screenMat.uniforms.uColor1, "value");
+screenUniforms.addColor(screenMat.uniforms.uColor2, "value");
+screenUniforms.addColor(screenMat.uniforms.uColor3, "value");
+screenUniforms.addColor(screenMat.uniforms.uColor4, "value");
 
 // const reflectorGUI = gui.addFolder("reflector");
 // const reflectorUniforms = scene.children[1].material.uniforms;
@@ -123,23 +124,13 @@ lights
 //   .step(0.0001)
 //   .name("waveSpeed");
 
-const waterGUI = gui.addFolder("water");
-const waterUniforms = waterMat.uniforms;
-waterGUI
-  .add(waterUniforms.uBigWaveElevation, "value", 0, 2, 0.01)
-  .name("uBigWaveElevation");
-waterGUI
-  .add(waterUniforms.uBigWaveFreqeuncy.value, "x", 0, 1, 0.01)
-  .name("uBigWaveFreqeuncyX");
-waterGUI
-  .add(waterUniforms.uBigWaveFreqeuncy.value, "y", 0, 1, 0.01)
-  .name("uBigWaveFreqeuncyY");
-waterGUI
-  .add(waterUniforms.uBigWaveSpeed.value, "x", 0, 1, 0.01)
-  .name("uBigWaveSpeedX");
-waterGUI
-  .add(waterUniforms.uBigWaveSpeed.value, "y", 0, 1, 0.01)
-  .name("uBigWaveSpeedY");
+// const waterGUI = gui.addFolder("water");
+// const waterUniforms = waterMat.uniforms;
+// waterGUI.add(waterUniforms.uBigWaveElevation, "value", 0, 2, 0.01).name("uBigWaveElevation");
+// waterGUI.add(waterUniforms.uBigWaveFreqeuncy.value, "x", 0, 1, 0.01).name("uBigWaveFreqeuncyX");
+// waterGUI.add(waterUniforms.uBigWaveFreqeuncy.value, "y", 0, 1, 0.01).name("uBigWaveFreqeuncyY");
+// waterGUI.add(waterUniforms.uBigWaveSpeed.value, "x", 0, 1, 0.01).name("uBigWaveSpeedX");
+// waterGUI.add(waterUniforms.uBigWaveSpeed.value, "y", 0, 1, 0.01).name("uBigWaveSpeedY");
 
 /* ------------------------ */
 /* -------- Events -------- */
@@ -168,6 +159,7 @@ const tick = () => {
   const elapsedTime = clock.getElapsedTime();
   lightsMat.uniforms.uTime.value = elapsedTime;
   waterMat.uniforms.uTime.value = elapsedTime;
+  screenMat.uniforms.uTime.value = elapsedTime;
   // reflectorMat.uniforms.uTime.value = elapsedTime;
   // Update controls
   controls.update();

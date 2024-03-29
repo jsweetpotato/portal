@@ -3,10 +3,10 @@ import vertexShader from "../shaders/lightsVertex.glsl";
 import fragmentShader from "../shaders/lightsFrag.glsl";
 
 const parameters = {
-  count: 30,
-  radius: 5,
+  count: 100,
+  radius: 6,
   randomness: 20,
-  space: 5,
+  space: 3,
   pointScale: 10,
   color: "#008cff",
   colorRandomness: 0.9,
@@ -59,10 +59,8 @@ const GenerateLights = (importedRenderer, importedScene) => {
     aRandoms[i3 + 2] = (Math.random() - 0.5) * randomness;
 
     colors[i3] = Math.random() * parameters.colorRandomness + defaultColor.r;
-    colors[i3 + 1] =
-      Math.random() * parameters.colorRandomness + defaultColor.g;
-    colors[i3 + 2] =
-      Math.random() * parameters.colorRandomness + defaultColor.b;
+    colors[i3 + 1] = Math.random() * parameters.colorRandomness + defaultColor.g;
+    colors[i3 + 2] = Math.random() * parameters.colorRandomness + defaultColor.b;
   }
 
   geometry.setAttribute("position", new THREE.BufferAttribute(position, 3));
