@@ -18,3 +18,14 @@ body {
   left: 0;
   outline: none;
 }
+
+a {
+  position: absolute;
+  color: white;
+  padding: 2rem;
+  z-index: 100;
+}
+
+a:hover {
+  filter: brightness(0.2);
+}
